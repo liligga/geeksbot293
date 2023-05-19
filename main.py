@@ -7,6 +7,15 @@ from handlers.picture import pic
 from handlers.start import start, about
 from handlers.shop import show_categories, show_female_shoes
 from handlers.survey_fsm import register_fsm_handlers
+from db.queries import (
+    init_db, drop_tables, create_tables, insert_data
+)
+
+async def on_start(_):
+    init_db()
+    drop_tables()
+    create_tables()
+    insert_data()
 
 
 if __name__ == "__main__":
@@ -20,4 +29,4 @@ if __name__ == "__main__":
     register_fsm_handlers(dp)
 
     dp.register_message_handler(echo)
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_start)

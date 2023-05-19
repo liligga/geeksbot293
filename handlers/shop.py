@@ -4,6 +4,8 @@ from aiogram.types import (
     KeyboardButton, 
     ReplyKeyboardRemove)
 
+from db.queries import fetch_books
+
 
 async def show_categories(message: Message):
     kb = ReplyKeyboardMarkup()
