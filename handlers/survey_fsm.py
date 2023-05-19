@@ -22,7 +22,7 @@ async def start_survey(message: Message):
 
 
 async def process_name(message: Message, state: FSMContext):
-    async with state.proxy as data:
+    async with state.proxy() as data:
         data['name'] = message.text
 
     await Survey.next()
@@ -45,8 +45,16 @@ async def proccess_age(message: Message, state: FSMContext):
 
 async def process_gender(message: Message, state: FSMContext):
     gender = message.text
+    async with state.proxy() as data:
+        await message.answer(data.as_dict())
+    # равносильно предыдущим двум строкам
+    # data = await state.get_data()
+    # print(data)
 
+    # для очистки памяти
     await state.finish()
+    async with state.proxy() as data:
+        print(f"Data после state.finish {data}")
     await message.answer("Спасибо за уделенное время!")
 
 
@@ -60,4 +68,5 @@ def register_fsm_handlers(dp: Dispatcher):
     dp.register_message_handler(start_survey, commands=["surv"])
     dp.register_message_handler(process_name, state=Survey.name)
     dp.register_message_handler(proccess_age, state=Survey.age)
+    dp.register_message_handler(process_gender, state=Survey.gender)
     dp.register_message_handler(cancel_survey, commands=["stop"], state="*")
