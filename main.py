@@ -6,7 +6,11 @@ from config import dp
 from handlers.echo import echo
 from handlers.picture import pic
 from handlers.start import start, about
-from handlers.shop import show_categories, show_female_shoes
+from handlers.shop import (
+    show_categories, 
+    show_female_shoes, 
+    buy_product_handler
+)
 from handlers.survey_fsm import register_fsm_handlers
 from db.queries import (
     init_db, drop_tables, create_tables, insert_data
@@ -19,6 +23,7 @@ async def on_start(_):
     insert_data()
 
 
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     dp.register_message_handler(pic, commands=["pic"])
@@ -26,6 +31,9 @@ if __name__ == "__main__":
     dp.register_callback_query_handler(about, lambda cb: cb.data == 'about')
     dp.register_message_handler(show_categories, commands=["shop"])
     dp.register_message_handler(show_female_shoes, Text(equals="женская обувь", ignore_case=True))
+    dp.register_callback_query_handler(
+        buy_product_handler, Text(startswith='buy_')
+    )
 
     # Survey FSM обработчики
     register_fsm_handlers(dp)
