@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from pprint import pprint
 
 
 def init_db():
@@ -10,6 +11,15 @@ def init_db():
     cursor = db.cursor()
 
 def create_tables():
+    # Создаем таблицу Survey
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Survey (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        age INTEGER,
+        gender TEXT
+    )""")    
+
     # -- Create Genres table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Genres (
@@ -56,9 +66,24 @@ def fetch_books():
     # -- Fetch all books
     cursor.execute("""SELECT * FROM Books""")
     books = cursor.fetchall()
+    pprint(books)
     # for b in books:
     #     print(b[1])
     return books
+
+def save_survey(data: dict):
+    # -- Insert DATA from Surveys
+    print(data)
+    cursor.execute("""INSERT INTO Survey (name, age, gender) VALUES
+        (:name, :age, :gender)""", 
+        {
+            'name': data['name'],
+            'age': data['age'],
+            'gender': data['gender'],
+        }
+    )
+    db.commit()
+
 
 
 if __name__ == "__main__":

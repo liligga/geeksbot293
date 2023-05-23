@@ -1,5 +1,6 @@
 from aiogram import executor
 from aiogram.dispatcher.filters import Text
+import logging
 
 from config import dp
 from handlers.echo import echo
@@ -19,6 +20,7 @@ async def on_start(_):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     dp.register_message_handler(pic, commands=["pic"])
     dp.register_message_handler(start, commands=["start"])
     dp.register_callback_query_handler(about, lambda cb: cb.data == 'about')

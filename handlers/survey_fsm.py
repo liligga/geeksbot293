@@ -7,6 +7,8 @@ from aiogram.types import (
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
+from db.queries import save_survey
+
 
 # FSM - Finite state machine
 # Конечный автомат
@@ -14,6 +16,7 @@ class Survey(StatesGroup):
     name = State()
     age = State()
     gender = State()
+    thank_you = State()
 
 
 async def start_survey(message: Message):
@@ -46,15 +49,23 @@ async def proccess_age(message: Message, state: FSMContext):
 async def process_gender(message: Message, state: FSMContext):
     gender = message.text
     async with state.proxy() as data:
-        await message.answer(data.as_dict())
+        data['gender'] = message.text.strip()
     # равносильно предыдущим двум строкам
     # data = await state.get_data()
     # print(data)
+        person = data.as_dict()
+        await message.answer(
+            f"Подтвердите ваши данные: Имя: {person['name']}"
+        )
+    await Survey.next()
 
+
+async def thank_you(message: Message, state: FSMContext):
+    async with state.proxy() as data:
+        # print(f"Data после state.finish {data}")
+        save_survey(data.as_dict())
     # для очистки памяти
     await state.finish()
-    async with state.proxy() as data:
-        print(f"Data после state.finish {data}")
     await message.answer("Спасибо за уделенное время!")
 
 
@@ -69,4 +80,5 @@ def register_fsm_handlers(dp: Dispatcher):
     dp.register_message_handler(process_name, state=Survey.name)
     dp.register_message_handler(proccess_age, state=Survey.age)
     dp.register_message_handler(process_gender, state=Survey.gender)
+    dp.register_message_handler(thank_you, state=Survey.thank_you)
     dp.register_message_handler(cancel_survey, commands=["stop"], state="*")
