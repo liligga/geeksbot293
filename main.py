@@ -2,7 +2,8 @@ from aiogram import executor
 from aiogram.dispatcher.filters import Text
 import logging
 
-from config import dp
+
+from config import dp, scheduler
 from handlers.echo import echo
 from handlers.picture import pic
 from handlers.start import start, about
@@ -15,6 +16,7 @@ from handlers.survey_fsm import register_fsm_handlers
 from db.queries import (
     init_db, drop_tables, create_tables, insert_data
 )
+from handlers.scheduler import handle_sched
 
 async def on_start(_):
     init_db()
@@ -35,8 +37,11 @@ if __name__ == "__main__":
         buy_product_handler, Text(startswith='buy_')
     )
 
+    dp.register_message_handler(handle_sched, commands=["shed"])
     # Survey FSM обработчики
     register_fsm_handlers(dp)
 
     dp.register_message_handler(echo)
+
+    scheduler.start()
     executor.start_polling(dp, skip_updates=True, on_startup=on_start)
