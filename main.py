@@ -17,6 +17,8 @@ from db.queries import (
     init_db, drop_tables, create_tables, insert_data
 )
 from handlers.scheduler import handle_sched
+from handlers.group_admin import register_admin_handlers
+
 
 async def on_start(_):
     init_db()
@@ -41,7 +43,7 @@ if __name__ == "__main__":
     # Survey FSM обработчики
     register_fsm_handlers(dp)
 
-    dp.register_message_handler(echo)
-
+    # dp.register_message_handler(echo)
+    register_admin_handlers(dp)
     scheduler.start()
     executor.start_polling(dp, skip_updates=True, on_startup=on_start)
